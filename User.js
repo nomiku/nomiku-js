@@ -56,6 +56,7 @@ function User() {
   }
   
   this.getAuth = function() {
+    // return the saved authorization data
     return auth;
   }
   
@@ -66,58 +67,28 @@ function User() {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
-    },
+    }
+    // get the user's device list
   }
   
-  this.getDefaultDevice = function(onSuccess, onFailure) {
+  this.getDefaultDevice = function() {
     return
-  }
-  
-  this.get = function(onSuccess, onFailure) {
-    return
-  }
-  
-  this.set = function(onSuccess, onFailure) {
-    return
-  }
-  
-  this.setProp = function(prop, value, onSuccess, onFailure) {
-    return
-  }
-  
-  
-  this.getTokenWithEmail = function(email, password, onSuccess, onFailure) {
-    var request = {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: email,
-        password: password,
-      }),
-    };
-    return fetch(routes.auth, request)
-      .then( (response) => { return response.json() } )
-      .then( function(response) {
-        if (response.hasOwnProperty('error')) {
-          throw(response.error);
-        } else {
-          var token = response.api_token;
-          var id = response.user_id;
-          onSuccess(token,id)
-        }
-      })
-      .catch(onFailure)
   }
   
   this.testConnection = function() {
+    // attempt to fetch restricted fields to see if authorization works
     return
   }
   
+  this.getDevice = function(id) {
+    
+    // create authorized Firebase credentials with Tender API
+    // http://www.eattender.com/api/docs#!/devices/GET_api_devices_id_session_get_5
+    var session = null;
+    
+    return new Device(id, auth,session)
+  }
+  
 }
-
-var user = new User;
 
 module.exports = User;
