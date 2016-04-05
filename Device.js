@@ -32,7 +32,21 @@ function Device(id,auth, name) {
  * @returns {Object}
  */
 Device.prototype.get = function(attribute) {
-
+  return fetch(this._session.session_base_url+this._session.session_path+"?auth="+this._session.session_token)
+    .then( (res) => { return res.json() })
+    .then( function (response) {
+      if (response.hasOwnProperty('error')) {
+        return Promise.reject(new Error('Error fetching data'))
+      } else {
+        if (typeof(attribute)==='undefined') {
+          return Promise.resolve(response);
+        } else if (response.hasOwnProperty(attribute)) {
+          return Promise.resolve(response[attribute])
+        } else {
+          return Promise.reject(new Error('No such attribute'))
+        }
+      }
+    })
 }
 
 /**
@@ -45,6 +59,13 @@ Device.prototype.get = function(attribute) {
  */
 Device.prototype.listen = function(attribute,callback) {
   // create a new Firebase reference and set the on change listener to the callback
+  var api_path=this._session.session_path
+  if (api_path.indexOf('.json')>0) api_path=api_path.slice(0,api_path.indexOf('.json'))
+  if (typeof(attribute)==='string') api_path = api_path+"/"+attribute
+  var ref=new Firebase(this._session.session_base_url+api_path);
+  var thisID=this._id
+  ref.authWithCustomToken(this._session.session_token)
+    .then(ref.on('value',function(snapshot) { callback(snapshot.val(),thisID); }));
 }
 
 
@@ -99,13 +120,22 @@ Device.prototype.getTimerState = function() {
  * @param {number} [newState[setpoint]] - New setpoint temperature in Celsius
  * @param {number} [newState[recipeId]] - Recipe ID from Tender, 0=custom recipe
  * @param {string} [newState[recipeTitle]] - Recipe title
- * @param {number} [newState[timer]] - Timer value in ms
  * @param {number} [newState[state]] - Heater state (0=off, 1=on)
  * @returns {Object}
  */
 Device.prototype.set = function(newState) {
   // use Tender Set API with device ID
   // http://www.eattender.com/api/docs#!/devices/POST_api_devices_id_set_post_6
+  var request = {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'X-Api-Token': this._auth.api_token
+    },
+    body: JSON.stringify({state:newState})
+  };
+  return fetch(this.route.set, request)
 }
 
 module.exports = Device;
