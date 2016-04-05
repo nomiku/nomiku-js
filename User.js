@@ -1,5 +1,7 @@
 'use strict'
 
+var Device = require('./Device')
+
 if (typeof fetch === 'undefined') {
   var fetch = require('node-fetch');
 }
@@ -18,7 +20,8 @@ function User() {
     auth: baseUri+'/users/auth',
     devices: baseUri +'/devices',
   }
-  
+  var deviceList=[]
+
   /**
    * Login and save API credentials
    * @async
@@ -36,7 +39,7 @@ function User() {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         email: email,
@@ -54,41 +57,120 @@ function User() {
         }
       })
   }
-  
+
   this.getAuth = function() {
     // return the saved authorization data
     return auth;
   }
-  
-  this.getAllDevices = function() {
+
+  function getDeviceList() {
+    // get the user's device list
+    if (auth.hasOwnProperty('api_token')) {
+      var request = {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-Api-Token':auth.api_token
+        },
+      };
+      return fetch(routes.devices, request)
+        .then( (response) => { return response.json() } )
+        .then( function(response) {
+          if (response.hasOwnProperty('error')) {
+            return Promise.reject(new Error(response.error));
+          } else if (response.hasOwnProperty('devices')) {
+            //Filter for only Nomiku devices
+            deviceList=response.devices.filter((a) => { return (a.device_type===0) })
+            return Promise.resolve(deviceList);
+          } else {
+            return Promise.reject(new Error('No devices or invalid response'));
+          }
+        })
+    } else {
+      return Promise.reject(new Error('Must be authenticated to get devices'))
+    }
+  }
+  this.getDeviceList = getDeviceList;
+
+  function getDefaultDeviceID() {
+    if (auth.hasOwnProperty('api_token')) {
+      var request = {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-Api-Token': auth.api_token
+        },
+      };
+      return fetch(routes.user + "/" + auth.user_id, request)
+        .then( (response) => { return response.json() } )
+        .then( function(response) {
+          if (response.hasOwnProperty('error')) {
+            return Promise.reject(new Error(response.error));
+          } else if (response.hasOwnProperty('user') &&
+                      response.user.hasOwnProperty('default_device')) {
+            return Promise.resolve(response.user['default_device']);
+          } else {
+            return Promise.reject(new Error('Authentication failed'))
+          }
+        })
+    } else {
+      return Promise.reject(new Error('Must be authenticated to get default device'))
+    }
+    return
+  }
+  this.getDefaultDeviceID = getDefaultDeviceID;
+
+  this.testConnection = function() {
+    // attempt to fetch restricted fields to see if authorization works
+    return
+  }
+
+  function getDevice(objectOrID) {
+    var id;
+    if (typeof(objectOrID)=='number') id=objectOrID
+    else if (typeof(objectOrID)=='object' && objectOrID.hasOwnProperty('id')) id=objectOrID.id
+    else if (typeof(objectOrID)=='undefined') {
+      return getDefaultDeviceID().then(getDevice)
+    } else {
+      return Promise.reject(new Error('Cannot parse argument to getDevice'))
+    }
+    // create authorized Firebase credentials with Tender API
+    // http://www.eattender.com/api/docs#!/devices/GET_api_devices_id_session_get_5
+    if (!auth.hasOwnProperty('api_token')) return Promise.reject(new Error('Please authenticate before getting a device'));
     var request = {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'X-Api-Token':auth.api_token
       },
-    }
-    // get the user's device list
+    };
+    var d=new Device(id, auth)
+    deviceList.forEach(function (obj) { if (obj.id==id) { d.name=obj.name; }});
+    return fetch(routes.devices + '/' + id + '/session', request)
+      .then( (response) => { return response.json() } )
+      .then( function(response) {
+        if (response.hasOwnProperty('error')) {
+          return Promise.reject(new Error('Unable to get device session: ' + response.error))
+        } else {
+          d._session=response
+          return Promise.resolve(d)
+        }
+      });
+
   }
-  
-  this.getDefaultDevice = function() {
-    return
+  this.getDevice = getDevice
+
+  function getAllDevices() {
+    return getDeviceList()
+      .then( function(diList) {
+        return Promise.all(diList.map( getDevice ))
+      })
   }
-  
-  this.testConnection = function() {
-    // attempt to fetch restricted fields to see if authorization works
-    return
-  }
-  
-  this.getDevice = function(id) {
-    
-    // create authorized Firebase credentials with Tender API
-    // http://www.eattender.com/api/docs#!/devices/GET_api_devices_id_session_get_5
-    var session = null;
-    
-    return new Device(id, auth,session)
-  }
-  
+  this.getAllDevices = getAllDevices;
+
 }
 
 module.exports = User;
