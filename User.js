@@ -129,37 +129,21 @@ function User() {
 
   function getDevice(objectOrID) {
     var id;
-    if (typeof(objectOrID)=='number') id=objectOrID
-    else if (typeof(objectOrID)=='object' && objectOrID.hasOwnProperty('id')) id=objectOrID.id
-    else if (typeof(objectOrID)=='undefined') {
+    if (typeof(objectOrID)=='number') {
+      id=objectOrID
+    } else if ((objectOrID===null) || typeof(objectOrID)=='undefined') {
       return getDefaultDeviceID().then(getDevice)
+    }  else if (typeof(objectOrID)=='object' && objectOrID.hasOwnProperty('id')) {
+      id=objectOrID.id
     } else {
       return Promise.reject(new Error('Cannot parse argument to getDevice'))
     }
-    // create authorized Firebase credentials with Tender API
-    // http://www.eattender.com/api/docs#!/devices/GET_api_devices_id_session_get_5
+
     if (!auth.hasOwnProperty('api_token')) return Promise.reject(new Error('Please authenticate before getting a device'));
-    var request = {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'X-Api-Token':auth.api_token
-      },
-    };
+
     var d=new Device(id, auth)
     deviceList.forEach(function (obj) { if (obj.id==id) { d.name=obj.name; }});
-    return fetch(routes.devices + '/' + id + '/session', request)
-      .then( (response) => { return response.json() } )
-      .then( function(response) {
-        if (response.hasOwnProperty('error')) {
-          return Promise.reject(new Error('Unable to get device session: ' + response.error))
-        } else {
-          d._session=response
-          return Promise.resolve(d)
-        }
-      });
-
+    return d.getSession();
   }
   this.getDevice = getDevice
 

@@ -24,6 +24,37 @@ function Device(id,auth, name) {
 }
 
 /**
+ * Get new session for device
+ * @method getSession
+ * @async
+ * @since 1.0.0
+ * @returns {Object}
+ */
+Device.prototype.getSession = function() {
+  // create authorized Firebase credentials with Tender API
+  // http://www.eattender.com/api/docs#!/devices/GET_api_devices_id_session_get_5
+  var that=this;
+  var request = {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'X-Api-Token':this._auth.api_token
+    },
+  };
+  return fetch(this.route.get, request)
+    .then( (response) => { return response.json() } )
+    .then( function(response) {
+      if (response.hasOwnProperty('error')) {
+        return Promise.reject(new Error('Unable to get device session: ' + response.error))
+      } else {
+        that._session=response
+        return Promise.resolve(that)
+      }
+    });
+}
+
+/**
  * Get Nomiku device state
  * @method get
  * @async
