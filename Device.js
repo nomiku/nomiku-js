@@ -1,8 +1,16 @@
-var Firebase = require('firebase');
+var firebase = require('firebase');
 
 if (typeof fetch === 'undefined') {
   var fetch = require('node-fetch');
 }
+
+var config = {
+  apiKey: "AIzaSyCz-hhzOpT0A2dBdSjpCYnezC-hWa6-BrI",
+  authDomain: "nom-rts.firebaseapp.com",
+  databaseURL: "https://nom-rts.firebaseio.com",
+  storageBucket: "nom-rts.appspot.com",
+};
+firebase.initializeApp(config);
 
 /**
  * Creates a new Nomiku device
@@ -93,9 +101,9 @@ Device.prototype.listen = function(attribute,callback) {
   var api_path=this._session.session_path
   if (api_path.indexOf('.json')>0) api_path=api_path.slice(0,api_path.indexOf('.json'))
   if (typeof(attribute)==='string') api_path = api_path+"/"+attribute
-  var ref=new Firebase(this._session.session_base_url+api_path);
+  var ref=firebase.database().ref(api_path);
   var thisID=this._id
-  ref.authWithCustomToken(this._session.session_token)
+  firebase.auth().signInWithCustomToken(this._session.session_token)
     .then(ref.on('value',function(snapshot) { callback(snapshot.val(),thisID); }));
 }
 

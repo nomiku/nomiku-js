@@ -143,7 +143,7 @@ function User() {
 
     var d=new Device(id, auth)
     deviceList.forEach(function (obj) { if (obj.id==id) { d.name=obj.name; }});
-    return d.getSession();
+    return Promise.resolve(d.getSession());
   }
   this.getDevice = getDevice
 
