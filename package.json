@@ -4,7 +4,7 @@
   "description": "Client library for controlling Nomiku WiFi devices",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -25,5 +25,10 @@
     "node-fetch": "^1.6.3",
     "paho-mqtt": "^1.0.3",
     "ws": "^2.0.3"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "sinon": "^1.17.7"
   }
 }
