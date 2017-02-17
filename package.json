@@ -21,13 +21,16 @@
   },
   "homepage": "https://github.com/nomiku/nomiku-js#readme",
   "dependencies": {
+    "es6-promise": "^4.0.5",
     "events": "^1.1.1",
-    "node-fetch": "^1.6.3",
+    "isomorphic-fetch": "^2.2.1",
     "paho-mqtt": "^1.0.3",
     "ws": "^2.0.3"
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
+    "fetch-mock": "^5.9.3",
     "mocha": "^3.2.0",
     "proxyquire": "^1.7.11",
     "sinon": "^1.17.7"
