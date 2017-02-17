@@ -121,18 +121,85 @@ describe('api', function() {
 
     it('should return result from fetch', sinon.test(function(done) {
       var fetchResult={
-        user_id:2,
-        api_token:"hello"
+        devices:[
+          {
+            device_id:1,
+            device_type:0,
+            hardware_id:"asdf"
+          },
+          {
+            device_id:2,
+            device_type:1,
+            hardware_id:"bbbb"
+          }
+        ]
       }
-      var expectedResult={
-        userID:fetchResult.user_id,
-        apiToken:fetchResult.api_token
-      }
+      var expectedResult=fetchResult.devices.filter((a) => { return (a.device_type===0) })
       fetchMock.get(api.routes.devices, fetchResult)
 
       api.getDevices(authCredentials)
         .then((response) => {
           expect(response).to.deep.equal(expectedResult)
+          done()
+        })
+        .catch((error) => {
+          done(error)
+        })
+    }))
+  })
+
+  var expectedRoute=api.routes.user + "/" + authCredentials.userID
+
+  describe('#getDefaultDeviceID', function() {
+
+    afterEach(function() {
+      fetchMock.restore();
+    })
+
+    it('should return error without userID or token', function(done) {
+      var auth = api.getDefaultDeviceID({}).catch( function(err) {
+        expect(err).to.be.an('error');
+        done()
+      })
+    })
+
+    it('should fetch the right endpoint', function(done) {
+      fetchMock.get(expectedRoute, {error:'not found'})
+
+      function checkFetch(arg) {
+        expect(fetchMock.called())
+        done()
+      }
+      api.getDefaultDeviceID(authCredentials)
+        .then(checkFetch)
+        .catch(checkFetch)
+    })
+
+    it('should reject if fetch returns error', sinon.test(function(done) {
+      fetchMock.get(expectedRoute, {error:'not found'})
+
+      api.getDefaultDeviceID(authCredentials)
+        .then((response) => {
+          done(new Error('No error thrown'))
+        })
+        .catch((error) => {
+          expect(error).to.be.an('error')
+          done()
+        })
+    }))
+
+    it('should return result from fetch', sinon.test(function(done) {
+      var fetchResult={
+        user:{
+          default_device:12
+        }
+      }
+      var expectedResult=fetchResult.user.default_device
+      fetchMock.get(expectedRoute, fetchResult)
+
+      api.getDefaultDeviceID(authCredentials)
+        .then((response) => {
+          expect(response).to.equal(expectedResult)
           done()
         })
         .catch((error) => {
