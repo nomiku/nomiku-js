@@ -123,14 +123,16 @@ describe('api', function() {
       var fetchResult={
         devices:[
           {
-            device_id:1,
+            id:1,
             device_type:0,
-            hardware_id:"asdf"
+            hardware_device_id:"asdf",
+            name:"longname"
           },
           {
-            device_id:2,
+            id:2,
             device_type:1,
-            hardware_id:"bbbb"
+            hardware_device_id:"bbbb",
+            name:"somename"
           }
         ]
       }
