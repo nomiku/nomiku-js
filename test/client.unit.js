@@ -27,11 +27,11 @@ describe('Client', function() {
 
   describe('#connect', function() {
 
-    var clientEmailPw = new Client(emailCredentials);
+    var client = new Client(emailCredentials);
 
     it('should call auth if there is no userID/apiToken', function() {
-      var auth = sinon.spy(clientEmailPw,'auth');
-      clientEmailPw.connect();
+      var auth = sinon.spy(client,'auth');
+      client.connect();
       auth.restore();
       sinon.assert.calledOnce(auth);
     })
