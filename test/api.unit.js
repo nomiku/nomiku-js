@@ -14,12 +14,11 @@ describe('api', function() {
   describe('#authenticate', function() {
     before(function() {
       fetch = sinon.stub();
-      proxyClient = proxyquire('../lib/client',{'node-fetch':fetch})
-      client = new proxyClient(emailCredentials);
+      proxyAPI = proxyquire('../lib/api',{'node-fetch':fetch})
     })
 
     it('should return error without email or password', function(done) {
-      var auth = client.auth({}).catch( function(err) {
+      var auth = proxyAPI.authenticate({}).catch( function(err) {
         expect(err).to.be.an('error');
         done()
       })
@@ -28,7 +27,7 @@ describe('api', function() {
     it('should return error with bad credentials', sinon.test(function(done) {
       fetch.returns(Promise.resolve({json:() => {return {error:'not found'}}}));
 
-      client.auth(emailCredentials)
+      proxyAPI.authenticate(emailCredentials)
         .then(function(result) {
           done(new Error('Did not throw error'))
         })

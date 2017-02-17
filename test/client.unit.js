@@ -3,6 +3,7 @@ var expect = require('chai').expect;
 var sinon = require('sinon');
 var proxyquire = require('proxyquire');
 var Client = require('../lib/client');
+var api = require('../lib/api');
 
 describe('Client', function() {
 
@@ -41,6 +42,20 @@ describe('Client', function() {
 
     it('should set credentials in client', sinon.test(function(done) {
 
+      var client = new Client(emailCredentials);
+
+      var authStub = this.stub(api,'authenticate');
+      var authResults = {
+        apiToken:"1234",
+        userId:2
+      }
+      authStub.returns(Promise.resolve(authResults))
+      client.auth(emailCredentials)
+        .then(function () {
+          expect(client.apiToken).to.equal(authResults.apiToken)
+          expect(client.userID).to.equal(authResults.userID)
+          done()
+        });
     }))
   })
 });
