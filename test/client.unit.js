@@ -33,21 +33,27 @@ describe('Client', function() {
 
   describe('#connect', function() {
 
-    it('should call auth if there is no userID/apiToken', function() {
+    it('should call auth if there is no userID/apiToken', sinon.test(function() {
       var client = new Client(emailCredentials);
       var auth = sinon.spy(client,'auth');
-      client.connect();
-      auth.restore();
-      sinon.assert.calledOnce(auth);
-    })
+      client.connect()
+        .then(function() {
+          auth.restore();
+          sinon.assert.calledOnce(auth);
+        })
+    }))
 
-    it('should call mqttClient.connect', function() {
+    it('should call mqttClient.connect', sinon.test(function(done) {
       var client = new Client(authCredentials);
-      var auth = sinon.spy(client.mqttClient,'connect');
-      client.connect();
-      auth.restore();
-      sinon.assert.calledOnce(auth);
-    })
+      var connectSpy = sinon.spy(client.mqttClient,'connect');
+      client.connect()
+        .then(function() {
+          connectSpy.restore();
+          sinon.assert.calledOnce(connectSpy);
+          done()
+        })
+        .catch(done)
+    }))
 
   });
 
@@ -92,12 +98,16 @@ describe('Client', function() {
 
   describe('#loadDevices', function() {
 
-    it('should call auth if there is no userID/apiToken', function() {
+    it('should throw error if there is no userID/apiToken', function(done) {
       var client = new Client(emailCredentials);
-      var auth = sinon.spy(client,'auth');
-      client.loadDevices();
-      auth.restore();
-      sinon.assert.calledOnce(auth);
+      client.loadDevices()
+        .then(() => {
+          done(new Error("no error thrown"))
+        })
+        .catch((err) => {
+          expect(err).to.be.an('error')
+          done()
+        });
     })
 
     it('should call api.getDevices', sinon.test(function(done) {
@@ -147,4 +157,55 @@ describe('Client', function() {
         });
     }))
   })
+
+
+    describe('#getDefaultDevice', function() {
+
+      it('should return error if there is no userID/apiToken', function(done) {
+        var client = new Client(emailCredentials);
+        client.getDefaultDevice()
+          .then(() => {
+            done(new Error("no error thrown"))
+          })
+          .catch((err) => {
+            expect(err).to.be.an('error')
+            done()
+          });
+      })
+
+      it('should call api.getDefaultDeviceID', sinon.test(function(done) {
+
+        var client = new Client(authCredentials);
+
+        var apiStub = this.stub(api,'getDefaultDeviceID');
+        apiStub.returns(Promise.resolve({}))
+        function checkStub() {
+          if (apiStub.calledOnce) {
+            done()
+          } else {
+            done(new Error("api.getDefaultDeviceID not called once"))
+          }
+        }
+        client.getDefaultDevice()
+          .then(checkStub)
+          .catch(checkStub);
+      }))
+
+      it('should add defaultDevice to client', sinon.test(function(done) {
+
+        var client = new Client(authCredentials);
+
+        var apiStub = this.stub(api,'getDefaultDeviceID');
+        var defaultDevice = 55
+        apiStub.returns(Promise.resolve(defaultDevice))
+        client.getDefaultDevice()
+          .then(function () {
+            expect(client.defaultDevice).to.equal(defaultDevice)
+            done()
+          })
+          .catch(function (err) {
+            done(err)
+          });
+      }))
+    })
 });
