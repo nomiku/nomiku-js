@@ -45,7 +45,7 @@ describe('Client', function() {
         .catch(done)
     }))
 
-    it('should call defaultDevice if not given', sinon.test(function(done) {
+    it('should call getDefaultDevice if not given', sinon.test(function(done) {
       var client = new Client();
       var apiSpy = sinon.spy(client,'getDefaultDevice');
       client.connect(authCredentials)
