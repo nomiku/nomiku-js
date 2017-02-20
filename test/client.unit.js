@@ -33,20 +33,62 @@ describe('Client', function() {
 
   describe('#connect', function() {
 
-    it('should call auth if there is no userID/apiToken', sinon.test(function() {
-      var client = new Client(emailCredentials);
+    it('should call auth if there is no userID/apiToken', sinon.test(function(done) {
+      var client = new Client();
       var auth = sinon.spy(client,'auth');
-      client.connect()
+      client.connect(emailCredentials)
         .then(function() {
           auth.restore();
           sinon.assert.calledOnce(auth);
+          done()
         })
+        .catch(done)
+    }))
+
+    it('should call defaultDevice if not given', sinon.test(function(done) {
+      var client = new Client();
+      var apiSpy = sinon.spy(client,'getDefaultDevice');
+      client.connect(authCredentials)
+        .then(function() {
+          apiSpy.restore();
+          sinon.assert.calledOnce(apiSpy);
+          done();
+        })
+        .catch(done)
+    }))
+
+    it('should call loadDevices if there are no devices', sinon.test(function(done) {
+      var client = new Client();
+      var connectOptions = {
+        userID:2,
+        apiToken:'password',
+        defaultDevice:1
+      };
+      var apiSpy = sinon.spy(client,'loadDevices');
+      client.connect(connectOptions)
+        .then(function() {
+          apiSpy.restore();
+          sinon.assert.calledOnce(apiSpy);
+          done()
+        })
+        .catch(done)
     }))
 
     it('should call mqttClient.connect', sinon.test(function(done) {
-      var client = new Client(authCredentials);
+      var client = new Client();
+      var connectOptions = {
+        userID:2,
+        apiToken:'password',
+        defaultDevice:1,
+        devices:{
+          10:{
+            hwid:1,
+            name:"this little nom"
+          }
+        }
+      };
       var connectSpy = sinon.spy(client.mqttClient,'connect');
-      client.connect()
+      client.connect(connectOptions)
         .then(function() {
           connectSpy.restore();
           sinon.assert.calledOnce(connectSpy);
