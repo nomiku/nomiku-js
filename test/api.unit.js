@@ -150,9 +150,10 @@ describe('api', function() {
     }))
   })
 
-  var expectedRoute=api.routes.user + "/" + authCredentials.userID
 
   describe('#getDefaultDeviceID', function() {
+
+    var expectedRoute=api.routes.user + "/" + authCredentials.userID
 
     afterEach(function() {
       fetchMock.restore();
@@ -208,5 +209,33 @@ describe('api', function() {
           done(error)
         })
     }))
+  })
+
+  describe('#setDevice', function() {
+
+    afterEach(function() {
+      fetchMock.restore();
+    })
+
+    it('should return error without userID or token', function(done) {
+      var auth = api.setDevice({},1,{}).catch( function(err) {
+        expect(err).to.be.an('error');
+        done()
+      })
+    })
+
+    it('should fetch the right endpoint', function(done) {
+      var expectedRoute = api.routes.devices + '/1/set'
+      fetchMock.post(expectedRoute, {error:'not found'})
+
+      function checkFetch(arg) {
+        expect(fetchMock.called())
+        done()
+      }
+      api.setDevice(authCredentials,1,{})
+        .then(checkFetch)
+        .catch(checkFetch)
+    })
+
   })
 });
