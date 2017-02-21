@@ -1,7 +1,7 @@
 var expect = require('chai').expect;
 var sinon = require('sinon');
 var Device = require('../lib/device');
-
+var lodash = require('lodash/core')
 
 describe('Device', function() {
 
@@ -62,14 +62,56 @@ describe('Device', function() {
 
   describe('#updateState', function() {
     it('should call itself with json keys if topic is json', function() {
+      var d=new Device(options)
+      var spy=sinon.spy(d,'updateState')
+      spy.reset()
+      var input={
+        a:1,
+        b:2
+      }
+      d.updateState("json",JSON.stringify(input))
+      expect(spy.callCount).to.equal(1+Object.keys(input).length)
     });
+
     it('should call itself with timer keys if topic is timer', function() {
+      var d=new Device(options)
+      var spy=sinon.spy(d,'updateState')
+      spy.reset()
+      d.updateState("timer","300")
+      expect(spy.callCount).to.equal(3)
+      spy.reset()
+      d.updateState("timer",Math.round(Date.now()/1000).toString())
+      expect(spy.callCount).to.equal(3)
     });
+
     it('should update the state if it is not provisional', function() {
+      var d=new Device(options)
+      var setValue=lodash.clone(goodState)
+
+      //these are transmitted as a single char
+      setValue.showF=goodState.showF ? '1' : '0'
+      setValue.timerRunning=goodState.timerRunning ? '1' : '0'
+
+      d.updateState("json",JSON.stringify(setValue));
+
+      expect(d.state).to.deep.equal(goodState);
     });
+
     it('should update the confirmedState if it is provisional', function() {
+      var d=new Device(options)
+      d.provisional.setpoint=true
+      var value=57.0
+      d.updateState("setpoint",value.toString())
+      expect(d.confirmedState.setpoint).to.equal(value)
     });
+
     it('should remove provisional if new state matches expected state', function() {
+      var d=new Device(options)
+      d.provisional.setpoint=true
+      var value=57.0
+      d.state.setpoint=value
+      d.updateState("setpoint",value.toString())
+      expect(d.provisional.setpoint).to.be.false
     });
   });
 });
