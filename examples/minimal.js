@@ -9,3 +9,8 @@ nomiku.on('state',function({state}) {
 
 nomiku.connect({email:process.env.TENDER_EMAIL,
                password:process.env.TENDER_PASSWORD})
+
+nomiku.on('connect', function() {
+  nomiku.set().on();
+  nomiku.set().setpoint(55.0);
+})

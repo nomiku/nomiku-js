@@ -1,39 +1,3 @@
-# Nomiku JavaScript SDK
-
-This library provides a simple interface to control your WiFi Nomiku. Currently compatible with node v6.x.x
-
-## Example
-
-The simplest example is:
-```JavaScript
-var Client=require('../lib/client')
-
-var nomiku=new Client()
-
-nomiku.on('state',function({state}) {
-  //taking only the current state of the device
-  console.log("State: "+JSON.stringify(state))
-})
-
-nomiku.connect({email:process.env.TENDER_EMAIL,
-               password:process.env.TENDER_PASSWORD})
-
-nomiku.on('connect', function() {
-  nomiku.set().on();
-  nomiku.set().setpoint(55.0);
-})
-
-```
-
-The client grabs the login token and the list of devices,
-and starts listening to the default device indicated in
-Tender (the one selected in the app). It will return the
-state whenever it changes.
-
-See longer examples in the `examples` directory
-
-## Client API
-
 ## Classes
 
 <dl>
