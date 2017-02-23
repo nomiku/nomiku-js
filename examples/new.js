@@ -8,13 +8,13 @@ var nomiku = new NomikuClient({
 });
 
 //for example:
-nomiku.loadDevices()
-  .then(function() {
-    nomiku.set(process.env.TENDER_DEVICE_ID).on()
-  })
+// nomiku.loadDevices().then(function() {
+//   nomiku.set(process.env.TENDER_DEVICE_ID).on();
+// });
 
 nomiku.on("connect", function() {
   console.log("Connected!");
+  nomiku.set().setpoint(52.0)
 });
 
 nomiku.on("close", function() {
@@ -30,10 +30,10 @@ nomiku.on("state", function(state) {
 });
 
 console.log("Connecting to Nomiku...");
+
 //API tokens were set at construction, so we don't need any auth
 //setting verboseState to true will deliver redundant or invalid
-//sttaes to the "state" event
-
+//states to the "state" event
 nomiku.connect({
-  verboseState:true
+  verboseState: true
 });
