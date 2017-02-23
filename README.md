@@ -7,7 +7,7 @@ This library provides a simple interface to control your WiFi Nomiku. Currently 
 Installing is as easy as:
 
 ```bash
-npm install nomiku
+npm install --save nomiku
 ```
 
 ## Example
@@ -19,7 +19,6 @@ var NomikuClient=require('nomiku')
 var nomiku=new NomikuClient()
 
 nomiku.on('state',function({state}) {
-  //taking only the current state of the device
   console.log("State: "+JSON.stringify(state))
 })
 
@@ -40,12 +39,53 @@ state whenever it changes.
 
 See longer examples in the `examples` directory
 
+## Getting the state
+
+The state event is documented in the API, but the
+further details of the state object are:
+
+| Name | Type | Description |
+| --- | --- | --- |
+| recipeID | <code>number</code> | Recipe ID currently cooking |
+| recipeTitle | <code>string</code> | Indicates whether the state has been emitted before |
+| setpoint | <code>number</code> | Set temperature in °C |
+| showF | <code>boolean</code> | True if temp should be displayed in °F |
+| state | <code>number</code> | -1: offline, 0: online but not heating/circulating, 1: online and running |
+| temp | <code>number</code> | Current temperature in °C |
+| timerEnd | <code>number</code> | Timer end time in UTC seconds (if timer is running) |
+| timerRunning | <code>boolean</code> | Whether timer is running |
+| timerSecs | <code>number</code> | Time remaining in seconds (if timer is not running) |
+
+## Setting the state
+
+The most straightforward way to update the state is to pass a new `state` object (only changed keys need to be included) to the set function of device `id` (omit `id` to use default device):
+
+```JavaScript
+nomiku.set(id).state(state)
+```
+
+A number of other convenience functions were created on top of `nomiku.set(id)`:
+* `.off()` turns off the device
+* `.on()` turns on the device
+* `.setpoint(setpoint)` changes setpoint to `setpoint` in °C
+* `.timer.start()` starts the timer
+* `.timer.stop()` stops the timer
+* `.timer.set(secs)` stops the timer and sets it to `secs` seconds
+* `.units(unit)` changes displayed units, `unit` is either the char 'C' or 'F'
+* `.recipe(recipe)` starts cooking a new recipe, where `recipe` has properties:
+
+| Name | Type | Description |
+| --- | --- | --- |
+| id | <code>number</code> | (optional) Recipe ID |
+| title | <code>string</code> | (optional) Recipe title |
+| temp | <code>number</code> | Set temperature in °C |
+| time | <code>number</code> | Number of seconds for the timer |
+
+
 ## Client API
 
-## Classes
-
 <dl>
-<dt><a href="#Client">Client</a></dt>
+<dt><a href="#Client">Client class</a></dt>
 <dd></dd>
 </dl>
 
