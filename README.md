@@ -12,29 +12,32 @@ npm install --save nomiku
 
 ## Example
 
-The simplest example is:
+Some example usage:
+
 ```JavaScript
-var NomikuClient=require('nomiku')
+var NomikuClient = require("nomiku");
 
-var nomiku=new NomikuClient()
+var nomiku = new NomikuClient();
 
-nomiku.on('state',function({state}) {
-  console.log("State: "+JSON.stringify(state))
-})
+nomiku.on("state", function({ state }) {
+  console.log("State: " + JSON.stringify(state));
+});
 
-nomiku.connect({email:process.env.TENDER_EMAIL,
-               password:process.env.TENDER_PASSWORD})
+nomiku.connect({
+  email: process.env.TENDER_EMAIL,
+  password: process.env.TENDER_PASSWORD
+});
 
-nomiku.on('connect', function() {
+nomiku.on("connect", function() {
   nomiku.set().on();
   nomiku.set().setpoint(55.0);
-})
+});
 
 ```
 
-The client grabs the login token and the list of devices,
-and starts listening to the default device indicated in
-Tender (the one selected in the app). It will return the
+On `connect`, the client grabs the login token and the
+list of devices and starts listening to the default
+device indicated in Tender. It will return the
 state whenever it changes.
 
 See longer examples in the `examples` directory
