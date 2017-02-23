@@ -2,13 +2,21 @@
 
 This library provides a simple interface to control your WiFi Nomiku. Currently compatible with node v6.x.x
 
+## Installing
+
+Installing is as easy as:
+
+```bash
+npm install nomiku
+```
+
 ## Example
 
 The simplest example is:
 ```JavaScript
-var Client=require('../lib/client')
+var NomikuClient=require('nomiku')
 
-var nomiku=new Client()
+var nomiku=new NomikuClient()
 
 nomiku.on('state',function({state}) {
   //taking only the current state of the device
