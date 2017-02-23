@@ -7,10 +7,10 @@ var nomiku = new NomikuClient({
   apiToken: process.env.TENDER_TOKEN
 });
 
-//for example:
-// nomiku.loadDevices().then(function() {
-//   nomiku.set(process.env.TENDER_DEVICE_ID).on();
-// });
+// for example:
+nomiku.loadDevices().then(function() {
+  nomiku.set(process.env.TENDER_DEVICE_ID).on();
+});
 
 nomiku.on("connect", function() {
   console.log("Connected!");
