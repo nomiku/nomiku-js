@@ -61,16 +61,6 @@ describe('Device', function() {
   });
 
   describe('#updateState', function() {
-    it('should call itself with json keys if topic is json', function() {
-      var spy=sinon.spy(d,'updateState')
-      spy.reset()
-      var input={
-        a:1,
-        b:2
-      }
-      d.updateState("json",JSON.stringify(input))
-      expect(spy.callCount).to.equal(1+Object.keys(input).length)
-    });
 
     it('should call itself with timer keys if topic is timer', function() {
       var spy=sinon.spy(d,'updateState')
@@ -88,8 +78,9 @@ describe('Device', function() {
       //these are transmitted as a single char
       setValue.showF=goodState.showF ? '1' : '0'
       setValue.timerRunning=goodState.timerRunning ? '1' : '0'
-
-      d.updateState("json",JSON.stringify(setValue));
+      for (key in setValue) {
+        d.updateState(key,setValue[key].toString())
+      }
 
       expect(d.state).to.deep.equal(goodState);
     });
@@ -170,5 +161,6 @@ describe('Device', function() {
         expect(callback.args[0][0].timer).to.equal(timerStateChange.timerSecs)
       }
     });
+
   });
 });

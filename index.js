@@ -1,9 +1,5 @@
 'use strict'
 
-var User = require('./User');
-var Device = require('./Device');
+var Client = require('./lib/client');
 
-module.exports = {User, Device};
-
-
-
+module.exports = Client;

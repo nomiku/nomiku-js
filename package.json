@@ -3,6 +3,8 @@
   "version": "0.2.0",
   "description": "Client library for controlling Nomiku WiFi devices",
   "main": "index.js",
+  "author": "Abe Fetterman",
+  "license": "MIT",
   "scripts": {
     "test": "mocha"
   },
@@ -14,8 +16,9 @@
     "nomiku",
     "iot"
   ],
-  "author": "Abe Fetterman",
-  "license": "MIT",
+  "engines": {
+    "node": ">=6.0.0"
+  },
   "bugs": {
     "url": "https://github.com/nomiku/nomiku-js/issues"
   },
