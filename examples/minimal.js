@@ -1,4 +1,4 @@
-var NomikuClient = require("nomiku");
+var NomikuClient = require("../");
 
 var nomiku = new NomikuClient();
 

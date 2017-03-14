@@ -1,4 +1,4 @@
-var NomikuClient = require("../lib/client");
+var NomikuClient = require("../");
 
 //setting tokens at creation allows us to
 //call the API without nomiku.connect()
